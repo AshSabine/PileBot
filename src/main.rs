@@ -30,6 +30,7 @@ use crate::{
 //		Data
 pub type BotResult<T> = Result<T, Box<dyn Error + Send + Sync>>;
 
+#[derive(Clone)]
 pub struct InteractionContext {
 	http: Arc<Client>,
 	app_id: Id<ApplicationMarker>

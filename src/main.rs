@@ -19,7 +19,13 @@ use twilight_http::{
 };
 
 //  User stuff
+mod dicelib;
+
 mod interaction;
+use crate::{
+	interaction::handle_interaction,
+	dicelib::DiceCommand
+};
 
 //		Data
 pub type BotResult<T> = Result<T, Box<dyn Error + Send + Sync>>;

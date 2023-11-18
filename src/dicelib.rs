@@ -1,7 +1,6 @@
 //  Imports
 use std::{
 	fmt,
-	error::Error,
 	str::FromStr,
 	num::ParseIntError,
 };

@@ -130,7 +130,7 @@ pub async fn handle_event(
 		// "Interactions" are the proper term for Discord's slash commands. The ideal would be
 		// to move to an interaction-based architecture rather than what currently exists.
 		Event::InteractionCreate(interaction) => {
-			match handle_interaction(interaction.0, ctx) {
+			match handle_interaction(interaction.0, ctx).await {
 				Ok(_) => {}
 				Err(e) => {}
 			}

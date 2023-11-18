@@ -1,5 +1,5 @@
 #	because obviously a token leak would be bad
-token.env
+.env
 #	no one needs to see this
 pile_bot.code-workspace
 

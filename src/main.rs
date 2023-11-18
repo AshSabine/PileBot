@@ -4,6 +4,7 @@ use std::{
 	sync::Arc,
 	error::Error, str::FromStr
 };
+use dotenv::dotenv;
 
 use twilight_gateway::{Event, Shard, ShardId};
 use twilight_model::{
@@ -53,6 +54,9 @@ impl InteractionContext {
 async fn main() -> BotResult<()> {
 	// Initialize the tracing subscriber.
 	tracing_subscriber::fmt::init();
+
+	//	Load env vars from the file
+	dotenv().ok();
 
 	//	Setup token / intents, login
 	let token = env::var("DISCORD_TOKEN")

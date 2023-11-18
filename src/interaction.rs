@@ -45,10 +45,10 @@ pub async fn handle_interaction(
 	//	Get handler
 	let response = match name {
 		"dice" => {
-
+            todo!()
 		}
 		"role" => {
-
+            todo!()
 		}
 		_ => {
 			return Ok(());

@@ -19,7 +19,7 @@ pub const NAME: &str = "dice";
 //		Implementation
 fn dice(options: &[CommandDataOption]) -> InteractionResponse {
 	let parse = options.iter().find(|o| o.name == "parse");
-
+	let args = options.iter().find(|o| o.name == "args");
 
 	Ok(())
 }

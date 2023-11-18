@@ -38,7 +38,7 @@ enum ArithOp {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-enum ParseRollError {
+pub enum ParseRollError {
 	MissingChar(String, usize),
 	UnrecognizedOp(String),
 }
@@ -54,7 +54,7 @@ impl fmt::Display for ParseRollError {
 
 //  Functions
 impl FromStr for DiceCommand {
-	type Err = ParseIntError;
+	type Err = ParseRollError;
 
 	fn from_str(w: &str) -> Result<Self, Self::Err> {
 		let mut s = w.to_owned();
@@ -69,13 +69,10 @@ impl FromStr for DiceCommand {
 			match die.split_once('d') {
 				Some((lhs, rhs)) => {
 					//	Get next operation
-					let (next_op,slice) = extract_op(rhs);
+					let next_op = ArithOp::from_str(rhs)?;
 					
 					//	Read args
-					let (args, sli) = extract_args(slice);
-
-					
-
+					let (args, sli) = extract_args(&rhs[..rhs.len()-1]);
 
 					//	Parse 
 					let count = lhs.parse::<i32>().expect("Failed to parse dice left input.");
@@ -87,10 +84,10 @@ impl FromStr for DiceCommand {
 				},
 				None => {
 					//	Get next operation
-					let (next_op, slice) = extract_op(die); 
+					let next_op = ArithOp::from_str(die)?; 
 
 					//	Parse
-					let count = slice.parse::<i32>().expect("Failed to parse sum input.");
+					let count = &die[..die.len()-1].parse::<i32>().expect("Failed to parse sum input.");
 
 					//	Operate
 					match stored_op {
@@ -158,20 +155,6 @@ impl FromStr for ArithOp {
 	}
 }
 
-fn extract_op(s: &str) -> (ArithOp, &str) {
-	if let Some(i) = s.rfind(|c| c == '+' || c == '-') {
-		let out = match &s[i..] {
-			"+" => ArithOp::Add,
-			"-" => ArithOp::Sub,
-			_ => ArithOp::None
-		};
-
-		(out, &s[..i])
-	} else {
-		(ArithOp::None, &s)
-	}
-}
-
 fn extract_args(s: &str) -> (Vec<DiceArg>, &str) {
 	//	Seperate to args
 	let mut last: usize = 0;
@@ -187,31 +170,12 @@ fn extract_args(s: &str) -> (Vec<DiceArg>, &str) {
 	let slice = result[0];
 	
 	//	Parse args
-	let mut args: Vec<DiceArg> = vec![];
-	for arg in result {
-		let next_char: Option<char> = arg.chars().next();
+	let args: Result<Vec<DiceArg>, ParseRollError> = result
+    	.into_iter()
+		.map(|arg| DiceArg::from_str(arg))
+		.collect();
 
-		if let Some('a')|Some('d') = next_char {
-			args.push(DiceArg::Advantage(next_char == Some('a')));
-		}
-
-		if let Some('x')|Some('r') = next_char {
-			let parts: Vec<&str> = arg[1..].split('.').collect();
-			
-			let left: i32 = parts[0].parse::<i32>().unwrap_or(0);
-			let right: i32 = parts.last()
-				.map(|part| part.parse::<i32>().unwrap_or(100))
-				.unwrap_or(100);
-			
-			args.push(match next_char {
-				Some('x') => DiceArg::Extra(left, right),
-				Some('r') => DiceArg::Reroll(left, right),
-				_ => panic!("Unexpected error while parsing dice.")
-			});
-		};
-	}
-
-	(args, slice)
+	(args.unwrap_or_default(), slice)
 }
 
 fn merge_args(args: Vec<DiceArg>) -> Vec<DiceArg> {
@@ -279,5 +243,15 @@ impl DiceCommand {
 		}
 
 		sum
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+    #[test]
+	fn test_parse() {
+		todo!()
 	}
 }

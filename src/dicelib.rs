@@ -251,7 +251,75 @@ mod tests {
 	use super::*;
 
     #[test]
-	fn test_parse() {
-		todo!()
-	}
+    fn single() {
+        let input = "2d6";
+        let result = DiceCommand::from_str(input);
+        assert!(result.is_ok());
+
+        let command = result.unwrap();
+        assert_eq!(command.dice.len(), 1);
+        assert_eq!(command.dice[0].count, 2);
+        assert_eq!(command.dice[0].sides, 6);
+    }
+
+    #[test]
+    fn multi() {
+        let input = "2d6+1d8-4";
+        let result = DiceCommand::from_str(input);
+        assert!(result.is_ok());
+
+        let command = result.unwrap();
+        assert_eq!(command.dice.len(), 3);
+        assert_eq!(command.dice[0].count, 2);
+        assert_eq!(command.dice[0].sides, 6);
+        assert_eq!(command.dice[1].count, 1);
+        assert_eq!(command.dice[1].sides, 8);
+        assert_eq!(command.dice[2].count, 0); // The constant term doesn't have a count
+        assert_eq!(command.stored_sum, -4);
+    }
+
+    #[test]
+    fn advantage() {
+        let input = "2d6a";
+        let result = DiceCommand::from_str(input);
+        assert!(result.is_ok());
+
+        let command = result.unwrap();
+        assert_eq!(command.dice.len(), 1);
+        assert_eq!(command.dice[0].args, vec![DiceArg::Advantage(true)]);
+    }
+
+    #[test]
+    fn reroll() {
+        let input = "2d6r..2";
+        let result = DiceCommand::from_str(input);
+        assert!(result.is_ok());
+
+        let command = result.unwrap();
+        assert_eq!(command.dice.len(), 1);
+        assert_eq!(command.dice[0].args, vec![DiceArg::Reroll(0, 2)]);
+    }
+
+    #[test]
+    fn extra() {
+        let input = "2d6x4..";
+        let result = DiceCommand::from_str(input);
+        assert!(result.is_ok());
+
+        let command = result.unwrap();
+        assert_eq!(command.dice.len(), 1);
+        assert_eq!(command.dice[0].args, vec![DiceArg::Extra(0, 4)]);
+    }
+
+    #[test]
+    fn invalid() {
+        let input = "invalid";
+        let result = DiceCommand::from_str(input);
+        assert!(result.is_err());
+
+        match result.err().unwrap() {
+            ParseRollError::UnrecognizedOp(op) => assert_eq!(op, "invalid"),
+            _ => panic!("Expected UnrecognizedOp error"),
+        }
+    }
 }

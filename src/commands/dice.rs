@@ -253,14 +253,6 @@ fn merge_args(args: Vec<DiceArg>) -> Vec<DiceArg> {
 		}
 	}
 
-	/*
-	out.retain(|arg| match arg {
-		DiceArg::Extra(l, _) => !(extra.0 ..= extra.1).contains(l),
-		DiceArg::Reroll(l, _) => !(reroll.0 ..= reroll.1).contains(l),
-		_ => false
-	});  
-	*/
-
 	if adv != 0 { out.push(DiceArg::Advantage(adv > 0)); }
 	if extra != (0, 100) { out.push(DiceArg::Extra(extra.0, extra.1)); }
 	if reroll != (0, 100) { out.push(DiceArg::Reroll(reroll.0, reroll.1)); }
@@ -278,7 +270,8 @@ impl DiceCommand {
 			let mut count: i32 = die.count;
 			
 			if die.sides == 1 {
-				sum += count;
+				sum += match next_op{ ArithOp::Add => count, ArithOp::Sub => -count, _ => 0 };
+				next_op = die.op;
 				continue
 			}
 

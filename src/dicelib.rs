@@ -38,7 +38,7 @@ enum ArithOp {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ParseRollError {
-	MissingChar(String),
+	MissingChar,
 	UnrecognizedOp(String),
 	ParseIntError(ParseIntError),
 }
@@ -46,7 +46,7 @@ pub enum ParseRollError {
 impl fmt::Display for ParseRollError {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		match self {
-			Self::MissingChar(s) => write!(f, "Expected char in string"),
+			Self::MissingChar => write!(f, "Expected char in string"),
 			Self::UnrecognizedOp(c) => write!(f, "Unrecognised operation \"{}\"", c),
 			Self::ParseIntError(e) => write!(f, "Error parsing input: {}", e),
 		}
@@ -87,7 +87,7 @@ impl FromStr for Dice {
 		let (str_count, mut str_rest) = match s.split_once('d') {
 			Some(res) => res,
 			None => {
-				let next_op = ArithOp::from_str(s)?;
+				let next_op = ArithOp::from_str(s).map_err(|_| ParseRollError::MissingChar)?;
 				let bias = s.strip_suffix(['+', '-']).unwrap_or(s).parse::<i32>()?;
 				
 				return Ok(Dice{
@@ -284,9 +284,10 @@ impl DiceCommand {
 				{ count += 1; }
 
 				sum += match next_op{ ArithOp::Add => roll, ArithOp::Sub => -roll, _ => 0 };
-				next_op = die.op;
 				count -= 1;
 			}
+
+			next_op = die.op;
 		}
 
 		sum

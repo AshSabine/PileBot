@@ -12,7 +12,7 @@ use twilight_model::{
 		Id,
 		marker::ApplicationMarker
 	},
-	gateway::{Intents, payload::incoming::MessageCreate}
+	gateway::{Intents, payload::incoming::MessageCreate}, channel::Message
 };
 use twilight_http::{
 	Client,
@@ -27,6 +27,8 @@ use crate::{
 	interaction::handle_interaction,
 	dicelib::DiceCommand
 };
+
+mod commands;
 
 //		Data
 pub type BotResult<T> = Result<T, Box<dyn Error + Send + Sync>>;
@@ -135,17 +137,20 @@ pub async fn handle_event(
 							return Ok(())
 						}
 						Err(e) => {
-							ctx.http.create_message(msg.channel_id).content("error parsing string")?.await?;
+							ctx.http.create_message(msg.channel_id)
+								.content("error parsing string")?.await?;
 
 							return Ok(())
 						}
 					}
 				}
 				"role" => {
-					ctx.http.create_message(msg.channel_id).content("role command unimplemented")?.await?;
+					ctx.http.create_message(msg.channel_id)
+						.content("role command unimplemented")?.await?;
 				}
 				"flavor" => {
-					ctx.http.create_message(msg.channel_id).content("flavor command unimplemented")?.await?;
+					ctx.http.create_message(msg.channel_id)
+						.content("flavor command unimplemented")?.await?;
 				}
 				_ => {}
 			}	

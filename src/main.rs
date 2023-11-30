@@ -12,7 +12,7 @@ use twilight_model::{
 		Id,
 		marker::ApplicationMarker
 	},
-	gateway::{Intents}
+	gateway::{Intents, payload::incoming::MessageCreate}
 };
 use twilight_http::{
 	Client,
@@ -99,9 +99,11 @@ pub async fn handle_event(
 		//	This is a very rough message handling architecture which I intend to replace later.
 		//	Note that the incoming content is boxed - I don't know why, should figure it out.
 		Event::MessageCreate(msg) => {
-			
+			//*
 			let lc = msg.content.clone().to_lowercase();
-			if lc.contains("im") && (lc.split(' ').count() < 4) {
+			
+			//	Funny jokes
+			if lc.contains("im") && (lc.split(' ').count() < 8) {
 				//  Splits by im, takes the last element as a string & removes whitespace
 				let text: &str = msg.content.split("im").last().unwrap().trim();
 
@@ -112,24 +114,42 @@ pub async fn handle_event(
 				ctx.http.create_message(msg.channel_id).content(&reply)?.await?;
 			}
 			
-			if lc.starts_with("!dice ") {
-				//  Splits by command, takes the last element as a string & removes whitespace
-				let roll_str: &str = msg.content.split("!roll ").last().unwrap().trim();
+			//	Actual commands
+			if let None = msg.content.split_once(' ') { return Ok(()) }
+			let (mut name, mut rest) = msg.content.split_once(' ').unwrap();
+			
+			name = &name[1..];
+			rest = rest.trim();
 
-				//  Avoid sending a message if there isn't anything
-				if roll_str.is_empty() { return Ok(()) }
+			if rest.is_empty() { return Ok(()) }
 
-				//  Parse roll
-				if let Ok(to_roll) = DiceCommand::from_str(roll_str) {
-					let roll: i32 = to_roll.roll();
-					let reply: String = format!("you rolled: {roll}");
-					ctx.http.create_message(msg.channel_id).content(&reply)?.await?;
+			match name {
+				"dice" => {
+					//  Parse roll
+					match DiceCommand::from_str(rest) {
+						Ok(to_roll) => {
+							let roll: i32 = to_roll.roll();
+							let reply: String = format!("you rolled: {roll}");
+							ctx.http.create_message(msg.channel_id).content(&reply)?.await?;
 
-					return Ok(())
+							return Ok(())
+						}
+						Err(e) => {
+							ctx.http.create_message(msg.channel_id).content("error parsing string")?.await?;
+
+							return Ok(())
+						}
+					}
 				}
-
-				ctx.http.create_message(msg.channel_id).content("error parsing roll")?.await?;
-			}			
+				"role" => {
+					ctx.http.create_message(msg.channel_id).content("role command unimplemented")?.await?;
+				}
+				"flavor" => {
+					ctx.http.create_message(msg.channel_id).content("flavor command unimplemented")?.await?;
+				}
+				_ => {}
+			}	
+			// */
 		}
 
 		// "Interactions" are the proper term for Discord's slash commands. The ideal would be
@@ -147,13 +167,3 @@ pub async fn handle_event(
 
 	Ok(())
 }
-
-/*	Coming later b/c currently this causes an error & I don't understand the Tokio framework very well.
-//	Sub functions
-async fn handle_msg(
-	msg: &MessageCreate,
-	http: &Arc<Client>,
-) -> Result<(), Box<dyn Error + Send + Sync>> {
-
-}
- */

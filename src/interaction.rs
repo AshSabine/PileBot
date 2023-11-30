@@ -6,7 +6,8 @@ use twilight_model::{
 		Interaction,
 		InteractionType,
 		InteractionData,
-	}
+	}, 
+	http::interaction::InteractionResponse
 };
 use twilight_http::Client;
 

@@ -20,12 +20,9 @@ use twilight_http::{
 };
 
 //  User stuff
-mod dicelib;
-
 mod interaction;
 use crate::{
 	interaction::handle_interaction,
-	dicelib::DiceCommand
 };
 
 mod commands;
@@ -126,24 +123,7 @@ pub async fn handle_event(
 			if rest.is_empty() { return Ok(()) }
 
 			match name {
-				"dice" => {
-					//  Parse roll
-					match DiceCommand::from_str(rest) {
-						Ok(to_roll) => {
-							let roll: i32 = to_roll.roll();
-							let reply: String = format!("you rolled: {roll}");
-							ctx.http.create_message(msg.channel_id).content(&reply)?.await?;
-
-							return Ok(())
-						}
-						Err(e) => {
-							ctx.http.create_message(msg.channel_id)
-								.content("error parsing string")?.await?;
-
-							return Ok(())
-						}
-					}
-				}
+				"dice" => commands::dice::dice(ctx, msg.clone(), rest).await?,
 				"role" => {
 					ctx.http.create_message(msg.channel_id)
 						.content("role command unimplemented")?.await?;

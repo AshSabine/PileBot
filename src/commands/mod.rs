@@ -1,1 +1,1 @@
-mod dice;
+pub mod dice;

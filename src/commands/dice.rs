@@ -16,7 +16,7 @@ use crate::{
 //		Command
 pub async fn dice(
 	ctx: InteractionContext, 
-	msg: MessageCreate, 
+	msg: Box<MessageCreate>, 
 	rest: &str
 ) -> BotResult<()> {
 	//  Parse roll

@@ -30,6 +30,7 @@ pub async fn handle_interaction(
 			return handle_autocomplete(interaction, ctx).await
 		}
 		InteractionType::ApplicationCommand => interaction,
+		InteractionType::MessageComponent => todo!(),
 		InteractionType::Ping => {
 			//	"Pong" back
 			return Ok(())
@@ -37,23 +38,29 @@ pub async fn handle_interaction(
 		_ => todo!(),
 	};
 
-	//	Retrieve data from interaction using refutable pattern match
-	let Some(InteractionData::ApplicationCommand(data)) = inter.data.clone() else {
-		return Err("No application data".into());
-	};
-	let name = data.name.as_str();
+	let response: InteractionResponse = match inter.data.clone().ok_or("No application data")? {
+		InteractionData::ApplicationCommand(data) => {
+			let name = data.name.as_str();
 
-	//	Get handler
-	let response = match name {
-		"dice" => {
-            todo!()
-		}
-		"role" => {
-            todo!()
-		}
-		_ => {
-			return Ok(());
-		}
+			//	Get handler
+			match name {
+				"dice" => {
+					todo!()
+				}
+				"role" => {
+					todo!()
+				}
+				_ => {
+					todo!()
+				}
+			}
+		},
+		InteractionData::MessageComponent(data) => {
+			todo!()
+		},
+		_ => { 
+			return Err("No application data".into())
+		} 	
 	};
 
 	/*		Send response to HTTP client 

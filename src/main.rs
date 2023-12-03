@@ -20,6 +20,8 @@ use twilight_http::{
 };
 
 //  User stuff
+mod data;
+
 mod interaction;
 use crate::{
 	interaction::handle_interaction,
@@ -89,6 +91,27 @@ async fn main() -> BotResult<()> {
 }
 
 pub async fn handle_event(
+	event: Event,
+	ctx: InteractionContext
+) -> BotResult<()> {
+	let result: BotResult<()> = handle_event_internal(event.clone(), ctx.clone()).await;
+	let err_msg = match result {
+		Err(e) => format!("{}", e),
+		_ => { return Ok(()) }
+	};
+
+	match event {
+		Event::MessageCreate(msg) => {
+			ctx.http.create_message(msg.channel_id)
+				.content(&err_msg)?.await?;
+		}
+		_ => {}
+	}
+
+	Ok(())
+}
+
+pub async fn handle_event_internal(
 	event: Event, 
 	ctx: InteractionContext
 ) -> BotResult<()> {

@@ -119,7 +119,8 @@ pub async fn handle_event_internal(
 		Event::Ready(_) => { println!("[EVNT] Shard is ready!") }
 
 		//	This is a very rough message handling architecture which I intend to replace later.
-		//	Note that the incoming content is boxed - I don't know why, should figure it out.
+		//	Note that the incoming content is boxed to optimize the memory footprint - the size
+		//	of an enum is tied to the size of each of its members, boxing it keeps it consistent.
 		Event::MessageCreate(msg) => {
 			//*
 			let lc = msg.content.clone().to_lowercase();

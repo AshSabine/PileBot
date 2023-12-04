@@ -14,12 +14,12 @@ use twilight_http::{
 use crate::{
 	BotResult,
 	InteractionContext,
-	GuildData
+	data::GuildData
 };	
 
 //		Data
-const emoji_yes: RequestReactionType = RequestReactionType::Unicode{};
-const emoji_no: RequestReactionType = RequestReactionType::Unicode{};
+//const emoji_yes: RequestReactionType = RequestReactionType::Unicode{};
+//const emoji_no: RequestReactionType = RequestReactionType::Unicode{};
 
 //		Command
 pub async fn flavor(
@@ -28,19 +28,19 @@ pub async fn flavor(
 	rest: &str
 ) -> BotResult<()> {
 	//	Retrieve user data
-	let guild_id = msg.guild_id.0;
-	let user_id = msg.author.id.0;
+	let guild_id = msg.guild_id.expect("Message not in guild");
+	let user_id = msg.author.id;
 
 	let guild_data = GuildData::read_file(guild_id).await?;
-	let role_id = guild_data.flavor_map.get(&user_id).cloned();
+	let mut role_id = guild_data.flavor_map.get(&user_id).cloned();
 
 	//	Get role (or create default)
-	let role = match role_id {
+	let role_id = match role_id {
 		Some(id) => id,
 		None => {	
 			//	Message
 			let make_msg = ctx.http.create_message(msg.channel_id)
-				.content("It appears you do not have a flavor role. One has been created for you.")
+				.content("It appears you do not have a flavor role. One has been created for you.")?
 				.await?;
 
 			let new_role = ctx.http.create_role(guild_id)
@@ -58,26 +58,24 @@ pub async fn flavor(
 		arg = arg.trim();
 		let (subcommand, arg_rest) = match arg.split_once(':') {
 			Some(res) => res,
-			None => {
-				return Err(());
-			}
+			None => { return Err("Splitting error".into()) }
 		};
 
 		let result = match subcommand {
 			"color" => {	
 				//	Construct color
 				arg_rest.len().checked_eq(6).ok_or_else(|| "Error: Invalid color")?;
-				let color = u32::from_str_radix(arg_rest, 16).map_err(|| "Error: Invalid Color")?;
+				let color = u32::from_str_radix(arg_rest, 16).map_err(|_| "Error: Invalid Color")?;
 
 				ctx.http.update_role(guild_id, role_id)
-        			.color(color)
+        			.color(Some(color))
         			.await?;
 
 				Ok(())
 			},
 			"name" => {
 				ctx.http.update_role(guild_id, role_id)
-        			.name(arg_rest)
+        			.name(Some(arg_rest))
         			.await?;
 
 				Ok(())

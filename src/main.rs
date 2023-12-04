@@ -147,14 +147,12 @@ pub async fn handle_event_internal(
 
 			match name {
 				"dice" => commands::dice::dice(ctx, msg.clone(), rest).await?,
+				"flavor" => commands::flavor::flavor(ctx, msg.clone(), rest).await?,
 				"role" => {
 					ctx.http.create_message(msg.channel_id)
 						.content("role command unimplemented")?.await?;
 				}
-				"flavor" => {
-					ctx.http.create_message(msg.channel_id)
-						.content("flavor command unimplemented")?.await?;
-				}
+				
 				_ => {}
 			}	
 			// */

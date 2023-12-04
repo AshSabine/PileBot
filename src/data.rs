@@ -23,7 +23,7 @@ use crate::{
 //		Data
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GuildData {
-	flavor_map: HashMap<Id<UserMarker>, Id<RoleMarker>>
+	pub flavor_map: HashMap<Id<UserMarker>, Id<RoleMarker>>
 }
 
 //		Implementation

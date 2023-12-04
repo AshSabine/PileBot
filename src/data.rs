@@ -42,13 +42,12 @@ impl GuildData {
 		if Path::new(&path).exists() {
 			let contents = fs::read_to_string(&path)
 				.map_err(|e| format!("Error reading guild data: {}", e))?;
-	
 			let data: GuildData = serde_json::from_str(&contents)
 				.map_err(|e| format!("Error parsing guild data JSON: {}", e))?;
 	
 			Ok(data)
 		} else {
-			Err(format!("Guild data for guild {:?} not found", path).into())
+			Err(format!("Data for guild {:?} not found", path).into())
 		}
 	}
 	

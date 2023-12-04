@@ -29,7 +29,7 @@ pub async fn dice(
 			return Ok(())
 		}
 		Err(e) => {
-			ctx.http.create_message(msg.channel_id).content("error parsing string")?.await?;
+			ctx.http.create_message(msg.channel_id).content(format!("{}", e).into())?.await?;
 
 			return Ok(())
 		}

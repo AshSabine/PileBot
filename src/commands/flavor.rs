@@ -59,18 +59,15 @@ pub async fn flavor(
 		};
 
 		let result = match subcommand {
-			"color" => {	
-				//	Construct color
-				if arg_rest.len() != 6 {
-					let color = u32::from_str_radix(arg_rest, 16).map_err(|_| "Invalid color")?;
+			"color" => if arg_rest.len() == 6 {
+				let color = u32::from_str_radix(arg_rest, 16).map_err(|_| "Invalid color")?;
 
-					ctx.http.update_role(guild_id, role_id)
-						.color(Some(color))
-						.await?;
+				ctx.http.update_role(guild_id, role_id)
+					.color(Some(color))
+					.await?;
 
-					Ok(())
-				} else { Err("Invalid color") }
-			},
+				Ok(())
+			} else { Err("Invalid color") },
 			"name" => {
 				ctx.http.update_role(guild_id, role_id)
         			.name(Some(arg_rest))

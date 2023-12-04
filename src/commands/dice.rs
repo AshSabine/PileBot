@@ -29,7 +29,8 @@ pub async fn dice(
 			return Ok(())
 		}
 		Err(e) => {
-			ctx.http.create_message(msg.channel_id).content(format!("{}", e).into())?.await?;
+			let err_msg = format!("{}", e);
+			ctx.http.create_message(msg.channel_id).content(&err_msg)?.await?;
 
 			return Ok(())
 		}

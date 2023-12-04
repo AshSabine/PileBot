@@ -38,7 +38,7 @@ impl GuildData {
 		guild_id: Id<GuildMarker>,
 	) -> BotResult<Self> {
 		//	Retrieve file
-		let path = format!("data/guilds/guild_{:?}.json", guild_id);
+		let path = format!("data/guilds/guild_{}.json", guild_id.get());
 		if Path::new(&path).exists() {
 			let contents = fs::read_to_string(&path)
 				.map_err(|e| format!("Error reading guild data: {}", e))?;
@@ -56,7 +56,7 @@ impl GuildData {
 		guild_id: Id<GuildMarker>,
 	) -> BotResult<()> {
 		//	Construct path
-		let path = format!("data/guilds/guild_{:?}.json", guild_id);
+		let path = format!("data/guilds/guild_{}.json", guild_id.get());
 		if !Path::new(&path).exists() { 
 	//		log::warn!(format!("Path {} does not exist", &path)) 
 		}

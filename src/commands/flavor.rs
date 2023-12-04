@@ -29,7 +29,7 @@ pub async fn flavor(
 	let user_id = msg.author.id;
 
 	let guild_data = GuildData::read_file(guild_id).await?;
-	let mut role_id = guild_data.flavor_map.get(&user_id).cloned();
+	let role_id = guild_data.flavor_map.get(&user_id).cloned();
 
 	//	Get role (or create default)
 	let role_id = match role_id {

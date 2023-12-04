@@ -143,18 +143,6 @@ impl FromStr for Dice {
 		println!("[from_str] str_rest (post-cull): {:?}", str_rest);
 
 		//	Seperate args & size string
-		/*
-		let mut last: usize = 0;
-		let mut result: Vec<&str> = Vec::new();
-		for (index, sep) in str_rest.match_indices(|c| c=='r'||c=='x'||c=='a'||c=='d') {
-			match last {
-				0 => { result.push(&str_rest[..index]); }
-				l => { result.push(&str_rest[l-1..index]); }
-			}
-			last = index + sep.len();
-		} 
-		result.push(&str_rest[last..]);
-		// */
 		let result: Vec<String> = str_rest.chars()
 			.rev().collect::<String>()
 			.split_inclusive(['r', 'x', 'a', 'd'])

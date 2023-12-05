@@ -16,22 +16,26 @@ use twilight_model::id::{
 };
 
 use crate::{
-	BotResult,
-	InteractionContext
+	BotResult
 };
 
 //		Data
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GuildData {
-	pub flavor_map: HashMap<Id<UserMarker>, Id<RoleMarker>>
+	pub id: Id<GuildMarker>,
+	pub flavor_map: HashMap<Id<UserMarker>, Id<RoleMarker>>,
 }
 
 //		Implementation
 impl GuildData {
-	pub fn new() -> Self {
-		Self {
+	pub fn new(id: Id<GuildMarker>) -> Self {
+		let out = Self {
+			id,
 			flavor_map: HashMap::new()
-		}
+		};
+		out.write_file();
+
+		out
 	}
 
 	pub async fn read_file(
@@ -46,24 +50,21 @@ impl GuildData {
 				.map_err(|e| format!("Error parsing guild data JSON: {}", e))?;
 	
 			Ok(data)
-		} else {
-			Err(format!("Data for guild {:?} not found", path).into())
-		}
+		} else { Err(format!("Data at {:?} not found", path).into()) }
 	}
 	
 	pub async fn write_file(
 		&self,
-		guild_id: Id<GuildMarker>,
 	) -> BotResult<()> {
 		//	Construct path
-		let path = format!("data/guilds/guild_{}.json", guild_id.get());
+		let path = format!("data/guilds/guild_{}.json", self.id.get());
 		if !Path::new(&path).exists() { 
 	//		log::warn!(format!("Path {} does not exist", &path)) 
 		}
 	
 		//	Write
 		let serialized = serde_json::to_string(self)
-			.map_err(|e| format!("Error serializing guild data: {}", e))?;
+			.map_err(|e| format!("Error serializing data: {}", e))?;
 	
 		fs::write(&path, serialized)
 			.map_err(|e| format!("Error writing to file: {}", e))?;

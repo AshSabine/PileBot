@@ -155,8 +155,7 @@ pub async fn handle_event_internal(
 				}
 				
 				_ => {}
-			}	
-			// */
+			}
 		}
 
 		// "Interactions" are the proper term for Discord's slash commands. The ideal would be

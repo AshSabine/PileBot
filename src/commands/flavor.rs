@@ -28,7 +28,11 @@ pub async fn flavor(
 	let guild_id = msg.guild_id.expect("Message not in guild");
 	let user_id = msg.author.id;
 
-	let guild_data = GuildData::read_file(guild_id).await?;
+	//	Retrieve guild data
+	let guild_data = match GuildData::read_file(guild_id).await {
+		Ok(res) => res,
+		Err(_) => GuildData::new(guild_id)
+	};
 	let role_id = guild_data.flavor_map.get(&user_id).cloned();
 
 	//	Get role (or create default)
@@ -58,7 +62,7 @@ pub async fn flavor(
 			None => { return Err("Splitting error".into()) }
 		};
 
-		let result = match subcommand {
+		let _ = match subcommand {
 			"color" => if arg_rest.len() == 6 {
 				let color = u32::from_str_radix(arg_rest, 16).map_err(|_| "Invalid color")?;
 
@@ -76,11 +80,8 @@ pub async fn flavor(
 				Ok(())
 			},
 			_ => Err("Invalid command".into())
-		};
+		}?;
 	}
-
-
-
 
 	Ok(())
 }

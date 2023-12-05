@@ -28,12 +28,12 @@ pub struct GuildData {
 
 //		Implementation
 impl GuildData {
-	pub fn new(id: Id<GuildMarker>) -> Self {
+	pub async fn new(id: Id<GuildMarker>) -> Self {
 		let out = Self {
 			id,
 			flavor_map: HashMap::new()
 		};
-		out.write_file();
+		out.write_file().await;
 
 		out
 	}

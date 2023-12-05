@@ -31,7 +31,7 @@ pub async fn flavor(
 	//	Retrieve guild data
 	let guild_data = match GuildData::read_file(guild_id).await {
 		Ok(res) => res,
-		Err(_) => GuildData::new(guild_id)
+		Err(_) => GuildData::new(guild_id).await
 	};
 	let role_id = guild_data.flavor_map.get(&user_id).cloned();
 
@@ -48,6 +48,8 @@ pub async fn flavor(
 				.color(0x8a8a8a)
 				.name("flavorless")
 				.await?;
+
+			//guild_data.flavor_map.insert(user_id, new_role.id);
 
 			return Ok(())
 		}

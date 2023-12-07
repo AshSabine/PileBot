@@ -1,12 +1,19 @@
 //		Imports
 use twilight_model::{
+	guild::{
+		Role
+	},
 	gateway::payload::incoming::MessageCreate,
-	channel::message::
+	channel::message::{
+		Message,
 		component::{
 			Button, ButtonStyle, Component, ComponentType
 		}
+	}
 };
-//use twilight_http::{};
+use twilight_http::{
+	response::Response
+};
 
 use crate::{
 	BotResult,
@@ -40,16 +47,18 @@ pub async fn flavor(
 		Some(id) => id,
 		None => {	
 			//	Message
-			let make_msg = ctx.http.create_message(msg.channel_id)
+			let _msg_response: Response<Message> = ctx.http.create_message(msg.channel_id)
 				.content("It appears you do not have a flavor role. One has been created for you.")?
 				.await?;
 
-			let new_role = ctx.http.create_role(guild_id)
+			let role_response: Response<Role> = ctx.http.create_role(guild_id)
 				.color(0x8a8a8a)
 				.name("flavorless")
 				.await?;
 
-			//guild_data.flavor_map.insert(user_id, new_role.id);
+			let new_role: Role = role_response.model().await?;
+			ctx.http.add_guild_member_role(guild_id, user_id, new_role.id)
+				.await?;
 
 			return Ok(())
 		}

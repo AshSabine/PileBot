@@ -36,7 +36,7 @@ pub async fn flavor(
 	let user_id = msg.author.id;
 
 	//	Retrieve guild data
-	let guild_data = match GuildData::read_file(guild_id).await {
+	let mut guild_data = match GuildData::read_file(guild_id).await {
 		Ok(res) => res,
 		Err(_) => GuildData::new(guild_id).await
 	};
@@ -51,14 +51,20 @@ pub async fn flavor(
 				.content("It appears you do not have a flavor role. One has been created for you.")?
 				.await?;
 
+			//	Create role
 			let role_response: Response<Role> = ctx.http.create_role(guild_id)
 				.color(0x8a8a8a)
 				.name("flavorless")
 				.await?;
 
+			//	Add role to user
 			let new_role: Role = role_response.model().await?;
 			ctx.http.add_guild_member_role(guild_id, user_id, new_role.id)
 				.await?;
+
+			//	Put role in guild data map
+			guild_data.flavor_map.insert(user_id, new_role.id);
+			guild_data.write_file().await?;
 
 			return Ok(())
 		}

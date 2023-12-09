@@ -50,9 +50,7 @@ pub async fn handle_interaction(
 				"role" => {
 					todo!()
 				}
-				_ => {
-					todo!()
-				}
+				_ => return Err("Bad command".into())
 			}
 		},
 		InteractionData::MessageComponent(data) => {

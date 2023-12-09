@@ -71,7 +71,7 @@ pub async fn flavor(
 			guild_data.flavor_map.insert(user_id, new_role.id);
 			guild_data.write_file().await?;
 
-			push_role_forward(ctx.clone(), new_role.id, guild_data).await?;
+			//push_role_forward(ctx.clone(), new_role.id, guild_data).await?;
 
 			return Ok(())
 		}
@@ -113,7 +113,7 @@ pub async fn flavor(
 		};
 	}
 
-	push_role_forward(ctx.clone(), role_id, guild_data).await?;
+	//push_role_forward(ctx.clone(), role_id, guild_data).await?;
 
 	Ok(())
 }

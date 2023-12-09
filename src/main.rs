@@ -136,6 +136,11 @@ pub async fn handle_event_internal(
 				let reply: String = format!("hi, {text}, i'm pilebot!");
 				ctx.http.create_message(msg.channel_id).content(&reply)?.await?;
 			}
+
+			if lc.contains("pilebot why are you like this") {
+				let reply: String = format!("i just am");
+				ctx.http.create_message(msg.channel_id).content(&reply)?.await?;
+			}
 			
 			//	Actual commands
 			if let None = msg.content.split_once(' ') { return Ok(()) }
@@ -143,8 +148,6 @@ pub async fn handle_event_internal(
 			
 			name = &name[1..];
 			rest = rest.trim();
-
-			if rest.is_empty() { return Ok(()) }
 
 			match name {
 				"dice" => commands::dice::dice(ctx, msg.clone(), rest).await?,

@@ -37,10 +37,10 @@ pub async fn flavor(
 	rest: &str
 ) -> BotResult<()> {
 	//	Retrieve user data
-	let guild_id: Id<GuildMarker> = msg.guild_id.expect("Message not in guild");
 	let user_id: Id<UserMarker> = msg.author.id;
 
 	//	Retrieve guild data
+	let guild_id: Id<GuildMarker> = msg.guild_id.expect("Message not in guild");
 	let mut guild_data: GuildData = match GuildData::read_file(guild_id).await {
 		Ok(res) => res,
 		Err(_) => GuildData::new(guild_id).await
@@ -52,7 +52,7 @@ pub async fn flavor(
 		Some(id) => id,
 		None => {	
 			//	Message
-			let _msg_response: Response<Message> = ctx.http.create_message(msg.channel_id)
+			ctx.http.create_message(msg.channel_id)
 				.content("it appears you do not have a flavor role; one has been created for you.")?
 				.await?;
 
@@ -73,7 +73,7 @@ pub async fn flavor(
 
 			//push_role_forward(ctx.clone(), new_role.id, guild_data).await?;
 
-			return Ok(())
+			new_role.id
 		}
 	};
 	
@@ -84,7 +84,8 @@ pub async fn flavor(
 		match arg.split_once(':') {
 			Some((sub, rem)) => match sub {
 				"color" => if rem.len() == 6 {
-					let color = u32::from_str_radix(rem, 16).map_err(|_| "Invalid color")?;
+					let color = u32::from_str_radix(rem, 16)
+						.map_err(|_| "Invalid color")?;
 	
 					ctx.http.update_role(guild_id, role_id)
 						.color(Some(color))
@@ -98,8 +99,6 @@ pub async fn flavor(
 				_ => return Err("Invalid command".into())
 			},
 			None => {
-				
-
 				let flavor_msg = match arg {
 					"color" => format!("color: {}", 0x000000),
 					"name" => format!("name: {}", ""),

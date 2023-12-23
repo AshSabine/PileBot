@@ -7,6 +7,8 @@ use std::{
 use serde::{Deserialize, Serialize};
 use serde_json;
 
+use time::OffsetDateTime;
+
 use twilight_model::id::{
 	Id, marker::{
 		GuildMarker,
@@ -19,21 +21,22 @@ use crate::{
 	BotResult
 };
 
-//		Data
-#[derive(Debug, Serialize, Deserialize)]
+//		Guild Data
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GuildData {
 	pub id: Id<GuildMarker>,
+
 	pub flavor_map: HashMap<Id<UserMarker>, Id<RoleMarker>>,
 }
 
-//		Implementation
 impl GuildData {
 	pub async fn new(id: Id<GuildMarker>) -> Self {
 		let out = Self {
 			id,
-			flavor_map: HashMap::new()
+
+			flavor_map: HashMap::new(),
 		};
-		out.write_file().await;
+		let _ = out.write_file().await;
 
 		out
 	}
@@ -73,4 +76,50 @@ impl GuildData {
 	}
 }
 
+//		Bot Data
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BotData {
+	pub issue_map: HashMap<i64, String>
+}
+
+impl BotData {
+	pub async fn new() -> Self {
+		let out = Self {
+			issue_map: HashMap::new(),
+		};
+		
+		out
+	}
+
+	pub async fn read_or_new() -> BotResult<Self> {
+		//	Retrieve file
+		let path = "data/bot_data.json".to_string();
+		if Path::new(&path).exists() {
+			let contents = fs::read_to_string(&path)
+				.map_err(|e| format!("Error reading bot data: {}", e))?;
+			let data: BotData = serde_json::from_str(&contents)
+				.map_err(|e| format!("Error parsing bot data JSON: {}", e))?;
+	
+			Ok(data)
+		} else {
+			Ok(Self::new().await)
+		}
+	} 
+
+	pub async fn write(
+		&self,
+	) -> BotResult<()> {
+		//	Construct path
+		let path = "data/bot_data.json".to_string();
+
+		//	Write
+		let serialized = serde_json::to_string_pretty(self)
+			.map_err(|e| format!("Error serializing data: {}", e))?;
+	
+		fs::write(&path, serialized)
+			.map_err(|e| format!("Error writing to file: {}", e))?;
+
+		Ok(())
+	}
+}
 
